@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "name": "Zara"
+    },
+    {
+        "id": 2,
+        "name": "Versace"
+    },
+    {
+        "id": 3,
+        "name": "Nike"
+    },
+    {
+        "id": 4,
+        "name": "Adidas"
+    },
+    {
+        "id": 5,
+        "name": "Gucci"
+    },
+    {
+        "id": 6,
+        "name": "Louis Vuitton"
+    },
+    {
+        "id": 7,
+        "name": "Coca-Cola"
+    },
+    {
+        "id": 8,
+        "name": "Levi's"
+    },
+    {
+        "id": 9,
+        "name": "Under Armour"
+    },
+    {
+        "id": 10,
+        "name": "Puma"
+    }
+]
