@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table';
+import { IGeneric } from '.';
 
 interface ITableProps<T> {
   data: T[];
@@ -11,6 +12,11 @@ interface ITableProps<T> {
     id: keyof T;
     title: string;
   }[];
+  loading: boolean;
+  brands: IGeneric[];
+  categories: IGeneric[];
 }
 
-export type { ITableProps };
+type TSort = 'created_at' | 'name';
+
+export type { ITableProps, TSort };

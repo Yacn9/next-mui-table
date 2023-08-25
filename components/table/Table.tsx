@@ -8,23 +8,39 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
   getFilteredRowModel,
-  ColumnSort,
 } from '@tanstack/react-table';
-import { ISets, ITableProps } from '@/types';
+import { ITableProps, TSort } from '@/types';
 import {
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
+  Button,
+  Divider,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Select, MenuItem } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import styles from '@/styles/components/table.module.css';
 
 export default function Tables<T>(props: ITableProps<T>) {
-  const { data, columns } = props;
+  const { data, columns, loading, categories, brands } = props;
 
-  const [sorting, setSorting] = useState<ColumnSort[]>([]);
-  const [filtering, setFiltering] = useState('');
+  const [filter, setFilter] = useState<{
+    category: string;
+    brand: string;
+    sort: TSort;
+    type?: 0 | 1;
+  }>({
+    category: 'all',
+    brand: 'all',
+    sort: 'created_at',
+  });
 
   const table = useReactTable({
     data,
@@ -33,52 +49,172 @@ export default function Tables<T>(props: ITableProps<T>) {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      sorting: sorting,
-      globalFilter: filtering,
-    },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setFiltering,
   });
 
-  return (
-    <div className={styles['table-container']}>
-      <Table>
-        <TableHead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableCell
-                  key={header.id}
-                  onClick={header.column.getToggleSortingHandler()}
-                  className={styles.th}
-                >
-                  {header.isPlaceholder ? null : (
-                    <div>
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                    </div>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
+  const TYPES = [
+    { id: 1, name: 'Active' },
+    { id: 0, name: 'Archived' },
+  ];
 
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className={styles.td}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
+  const SORT = [
+    { name: 'Created At', value: 'created_at' },
+    { name: 'Name', value: 'name' },
+  ] as const;
+
+  return (
+    <>
+      <div className={styles.controller}>
+        <ToggleButtonGroup
+          color="primary"
+          value={filter.type}
+          exclusive
+          onChange={(e, value) => setFilter({ ...filter, type: value })}
+          aria-label="Platform"
+          className={styles.toggle}
+        >
+          {TYPES.map((type) => (
+            <ToggleButton
+              key={type.id}
+              value={type.id}
+              className={`${styles['toggle-btn']} ${
+                filter.type === type.id ? styles.selected : ''
+              }`}
+            >
+              {type.name}
+            </ToggleButton>
           ))}
-        </TableBody>
-      </Table>
-    </div>
+        </ToggleButtonGroup>
+        <Button className={styles['add-button']}>
+          New Set
+          <AddIcon />
+        </Button>
+      </div>
+      <Divider />
+      {loading ? (
+        <div className={styles.loading}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <>
+          <div className={styles.controller}>
+            <div className={styles.filters}>
+              <div className={styles.filter}>
+                <Typography
+                  component="p"
+                  variant="subtitle1"
+                  className={styles.text}
+                >
+                  Category :
+                </Typography>
+                <Select
+                  value={filter.category}
+                  onChange={(e) =>
+                    setFilter({ ...filter, category: e.target.value })
+                  }
+                  displayEmpty
+                  variant="standard"
+                  inputProps={{ 'aria-label': 'Without label' }}
+                  className={styles['filter-select']}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  {categories.length
+                    ? categories.map((item) => (
+                        <MenuItem key={item.id} value={item.name}>
+                          {item.name}
+                        </MenuItem>
+                      ))
+                    : null}
+                </Select>
+              </div>
+              <Divider orientation="vertical" flexItem />
+              <div className={styles.filter}>
+                <Typography
+                  component="p"
+                  variant="subtitle1"
+                  className={styles.text}
+                >
+                  Client/brand :
+                </Typography>
+                <Select
+                  value={filter.brand}
+                  onChange={(e) =>
+                    setFilter({ ...filter, brand: e.target.value })
+                  }
+                  displayEmpty
+                  variant="standard"
+                  inputProps={{ 'aria-label': 'Without label' }}
+                  className={styles['filter-select']}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  {brands.map((item) => (
+                    <MenuItem key={item.id} value={item.name}>
+                      {item.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <Select
+              value={filter.sort}
+              onChange={(e) =>
+                setFilter({ ...filter, sort: e.target.value as TSort })
+              }
+              displayEmpty
+              variant="outlined"
+              inputProps={{ 'aria-label': 'Without label' }}
+              className={styles.sort}
+            >
+              {SORT.map((item) => (
+                <MenuItem key={item.value} value={item.value}>
+                  Sort by: {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          <Divider />
+          <section className={styles['table-container']}>
+            <Table>
+              <TableHead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableCell
+                        key={header.id}
+                        onClick={header.column.getToggleSortingHandler()}
+                        className={styles.th}
+                      >
+                        {header.isPlaceholder ? null : (
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHead>
+
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className={styles.td}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </section>
+        </>
+      )}
+    </>
   );
 }

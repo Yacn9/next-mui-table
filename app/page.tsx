@@ -32,6 +32,7 @@ export default function Home() {
       queryKey: ['data', endpoint],
       queryFn: () => fetchData<ISets | IGeneric>(endpoint),
       ssr: true,
+      staleTime: Infinity,
     }))
   );
   const columns: ColumnDef<ISets>[] = [
@@ -69,14 +70,19 @@ export default function Home() {
 
   return (
     <main>
-      {sets.isLoading ? (
-        <>loading</>
+      {sets.isError ? (
+        <>Something Went Wrong</>
       ) : (
         <Table
           data={sets.data as ISets[]}
           columns={columns}
           filterable={[]}
           searchable={[]}
+          loading={sets.isLoading && categories.isLoading && brands.isLoading}
+          brands={brands.data?.length ? (brands.data as IGeneric[]) : []}
+          categories={
+            categories.data?.length ? (categories.data as IGeneric[]) : []
+          }
         />
       )}
     </main>
