@@ -9,7 +9,7 @@ const dataPath = path.join(process.cwd(), 'public/mocks/sets.json');
 export async function GET(req: NextRequest) {
   try {
     const sets = await fsPromises.readFile(dataPath, 'utf-8');
-    const data: ISets[] = JSON.parse(sets);
+    let data: ISets[] = JSON.parse(sets);
     const queryParams = new URLSearchParams(req.nextUrl.search);
     const sort = queryParams.get('sort');
     const category = queryParams.get('category');
@@ -18,10 +18,14 @@ export async function GET(req: NextRequest) {
       throw new Error('no category found');
     }
     if (category?.toLowerCase() !== 'all') {
-      data.filter((item) => item.category === category);
+      data = data.filter(
+        (item) => item.category.toLowerCase() === category?.toLocaleLowerCase()
+      );
     }
     if (brand?.toLowerCase() !== 'all') {
-      data.filter((item) => item.brand === brand);
+      data = data.filter(
+        (item) => item.brand.toLowerCase() === brand?.toLocaleLowerCase()
+      );
     }
     if (sort) {
       sort === 'created_at'
