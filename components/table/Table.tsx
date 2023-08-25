@@ -11,6 +11,14 @@ import {
   ColumnSort,
 } from '@tanstack/react-table';
 import { ISets, ITableProps } from '@/types';
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@mui/material';
+import styles from '@/styles/components/table.module.css';
 
 export default function Tables<T>(props: ITableProps<T>) {
   const { data, columns } = props;
@@ -34,15 +42,16 @@ export default function Tables<T>(props: ITableProps<T>) {
   });
 
   return (
-    <div>
-      <table className="w3-table-all">
-        <thead>
+    <div className={styles['table-container']}>
+      <Table>
+        <TableHead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+            <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th
+                <TableCell
                   key={header.id}
                   onClick={header.column.getToggleSortingHandler()}
+                  className={styles.th}
                 >
                   {header.isPlaceholder ? null : (
                     <div>
@@ -52,24 +61,24 @@ export default function Tables<T>(props: ITableProps<T>) {
                       )}
                     </div>
                   )}
-                </th>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
+        </TableHead>
 
-        <tbody>
+        <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
+                <TableCell key={cell.id} className={styles.td}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

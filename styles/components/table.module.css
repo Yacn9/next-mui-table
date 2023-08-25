@@ -1,0 +1,18 @@
+.table-container {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  color: #707171 !important;
+  padding: 1.5rem 1rem !important;
+}
+
+.td {
+  padding: 2rem 1rem !important;
+  color: #2f302f !important;
+}
