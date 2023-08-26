@@ -89,7 +89,7 @@ export default function Tables<T>(props: ITableProps<T>) {
           <AddIcon />
         </Button>
       </div>
-      <Divider />
+      <Divider className={styles.divider} />{' '}
       {loading ? (
         <div className={styles.loading}>
           <CircularProgress />
@@ -171,7 +171,7 @@ export default function Tables<T>(props: ITableProps<T>) {
               ))}
             </Select>
           </div>
-          <Divider />
+          <Divider className={styles.divider} />
           <section className={styles['table-container']}>
             <Table>
               <TableHead>
