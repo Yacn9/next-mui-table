@@ -188,18 +188,26 @@ export default function Tables<T>(props: ITableProps<T>) {
               </TableHead>
 
               <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className={styles.td}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                {!table.getRowModel().rows.length ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className={styles['no-data']}>
+                      No data found
+                    </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className={styles.td}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </section>

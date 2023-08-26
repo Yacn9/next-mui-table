@@ -92,3 +92,7 @@
 .divider {
   border-color: black !important;
 }
+
+.no-data {
+  text-align: center !important;
+}
