@@ -1,0 +1,21 @@
+.name-cell {
+  color: #3c3e3e;
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+}
+
+.button {
+  border-radius: 2.5rem !important;
+  min-height: 1rem;
+  min-width: 1rem !important;
+  border: 1px solid black !important;
+  padding: 0.25rem !important;
+}
+
+.main {
+  padding: 8rem 1rem 2rem;
+}
+
+.heading {
+  font-weight: 600 !important;
+}

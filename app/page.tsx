@@ -1,95 +1,110 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import { Table } from '@/components';
+import { IGeneric, ISets, ITableFilter, TSort } from '@/types';
+import axios from 'axios';
+import { format } from 'date-fns';
+import { useQueries, useQuery } from 'react-query';
+import { type ColumnDef } from '@tanstack/react-table';
+import styles from '@/styles/app/main.module.css';
+import { Button, Typography } from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { useState } from 'react';
+
+async function fetchData<T>(
+  endpoint: string,
+  params?: ITableFilter
+): Promise<T[]> {
+  try {
+    const response = await axios.get(endpoint, { params: { ...params } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+}
+
+const endpoints = ['/api/category', '/api/brand'];
 
 export default function Home() {
+  const [filter, setFilter] = useState<ITableFilter>({
+    category: 'all',
+    brand: 'all',
+    sort: 'created_at',
+    type: 1,
+  });
+
+  const [categories, brands] = useQueries(
+    endpoints.map((endpoint) => ({
+      queryKey: ['data', endpoint],
+      queryFn: () => fetchData<IGeneric>(endpoint),
+      ssr: true,
+      staleTime: Infinity,
+    }))
+  );
+
+  const {
+    data: sets,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(['sets', filter], () => fetchData<ISets>('/api/set', filter), {
+    refetchOnWindowFocus: false,
+  });
+
+  const columns: ColumnDef<ISets>[] = [
+    {
+      header: 'Set Name',
+      accessorKey: 'name',
+      cell: (info) => (
+        <Typography
+          variant="body1"
+          component="span"
+          className={styles['name-cell']}
+        >
+          {info.getValue() as string}
+        </Typography>
+      ),
+    },
+    { header: 'Category', accessorKey: 'category' },
+    { header: 'Address', accessorKey: 'address' },
+    {
+      header: 'Next Availability',
+      accessorKey: 'created_at',
+      cell: (info) =>
+        format(new Date(info.getValue() as string), 'EEE, dd/MM - HH:mm'),
+    },
+    {
+      header: ' ',
+      accessorKey: 'id',
+      cell: () => (
+        <Button className={styles.button}>
+          <ArrowForwardIcon fontSize="small" />
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      {isError ? (
+        <>Something Went Wrong</>
+      ) : (
+        <>
+          <Typography component="h1" variant="h1" className={styles.heading}>
+            Sets
+          </Typography>
+          <Table
+            data={sets?.length ? sets : []}
+            columns={columns}
+            loading={isLoading && categories.isLoading && brands.isLoading}
+            brands={brands.data?.length ? brands.data : []}
+            categories={categories.data?.length ? categories.data : []}
+            filter={filter}
+            changeFilter={setFilter}
+          />
+        </>
+      )}
     </main>
-  )
+  );
 }
