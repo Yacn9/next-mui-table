@@ -69,21 +69,26 @@ export default function Home() {
   ];
 
   return (
-    <main>
+    <main className={styles.main}>
       {sets.isError ? (
         <>Something Went Wrong</>
       ) : (
-        <Table
-          data={sets.data as ISets[]}
-          columns={columns}
-          filterable={[]}
-          searchable={[]}
-          loading={sets.isLoading && categories.isLoading && brands.isLoading}
-          brands={brands.data?.length ? (brands.data as IGeneric[]) : []}
-          categories={
-            categories.data?.length ? (categories.data as IGeneric[]) : []
-          }
-        />
+        <>
+          <Typography component="h1" variant="h1" className={styles.heading}>
+            Sets
+          </Typography>
+          <Table
+            data={sets.data as ISets[]}
+            columns={columns}
+            filterable={[]}
+            searchable={[]}
+            loading={sets.isLoading && categories.isLoading && brands.isLoading}
+            brands={brands.data?.length ? (brands.data as IGeneric[]) : []}
+            categories={
+              categories.data?.length ? (categories.data as IGeneric[]) : []
+            }
+          />
+        </>
       )}
     </main>
   );

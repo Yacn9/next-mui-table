@@ -40,6 +40,7 @@ export default function Tables<T>(props: ITableProps<T>) {
     category: 'all',
     brand: 'all',
     sort: 'created_at',
+    type: 1,
   });
 
   const table = useReactTable({

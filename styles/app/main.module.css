@@ -11,3 +11,11 @@
   border: 1px solid black !important;
   padding: 0.25rem !important;
 }
+
+.main {
+  padding: 8rem 1rem 2rem;
+}
+
+.heading {
+  font-weight: 600 !important;
+}
