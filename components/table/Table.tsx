@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -29,19 +29,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styles from '@/styles/components/table.module.css';
 
 export default function Tables<T>(props: ITableProps<T>) {
-  const { data, columns, loading, categories, brands } = props;
-
-  const [filter, setFilter] = useState<{
-    category: string;
-    brand: string;
-    sort: TSort;
-    type?: 0 | 1;
-  }>({
-    category: 'all',
-    brand: 'all',
-    sort: 'created_at',
-    type: 1,
-  });
+  const { data, columns, loading, categories, brands, filter, changeFilter } =
+    props;
 
   const table = useReactTable({
     data,
@@ -69,7 +58,7 @@ export default function Tables<T>(props: ITableProps<T>) {
           color="primary"
           value={filter.type}
           exclusive
-          onChange={(e, value) => setFilter({ ...filter, type: value })}
+          onChange={(e, value) => changeFilter({ ...filter, type: value })}
           aria-label="Platform"
           className={styles.toggle}
         >
@@ -110,7 +99,7 @@ export default function Tables<T>(props: ITableProps<T>) {
                 <Select
                   value={filter.category}
                   onChange={(e) =>
-                    setFilter({ ...filter, category: e.target.value })
+                    changeFilter({ ...filter, category: e.target.value })
                   }
                   displayEmpty
                   variant="standard"
@@ -139,7 +128,7 @@ export default function Tables<T>(props: ITableProps<T>) {
                 <Select
                   value={filter.brand}
                   onChange={(e) =>
-                    setFilter({ ...filter, brand: e.target.value })
+                    changeFilter({ ...filter, brand: e.target.value })
                   }
                   displayEmpty
                   variant="standard"
@@ -158,7 +147,7 @@ export default function Tables<T>(props: ITableProps<T>) {
             <Select
               value={filter.sort}
               onChange={(e) =>
-                setFilter({ ...filter, sort: e.target.value as TSort })
+                changeFilter({ ...filter, sort: e.target.value as TSort })
               }
               displayEmpty
               variant="outlined"

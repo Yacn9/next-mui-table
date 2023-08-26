@@ -1,18 +1,22 @@
 'use client';
 
 import { Table } from '@/components';
-import { IGeneric, ISets } from '@/types';
+import { IGeneric, ISets, ITableFilter, TSort } from '@/types';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { useQueries } from 'react-query';
+import { useQueries, useQuery } from 'react-query';
 import { type ColumnDef } from '@tanstack/react-table';
 import styles from '@/styles/app/main.module.css';
 import { Button, Typography } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { useState } from 'react';
 
-async function fetchData<T>(endpoint: string): Promise<T[]> {
+async function fetchData<T>(
+  endpoint: string,
+  params?: ITableFilter
+): Promise<T[]> {
   try {
-    const response = await axios.get(endpoint);
+    const response = await axios.get(endpoint, { params: { ...params } });
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -20,21 +24,34 @@ async function fetchData<T>(endpoint: string): Promise<T[]> {
   }
 }
 
-const endpoints = [
-  '/api/set?brand=all&category=all',
-  '/api/category',
-  '/api/brand',
-];
+const endpoints = ['/api/category', '/api/brand'];
 
 export default function Home() {
-  const [sets, categories, brands] = useQueries(
+  const [filter, setFilter] = useState<ITableFilter>({
+    category: 'all',
+    brand: 'all',
+    sort: 'created_at',
+    type: 1,
+  });
+
+  const [categories, brands] = useQueries(
     endpoints.map((endpoint) => ({
       queryKey: ['data', endpoint],
-      queryFn: () => fetchData<ISets | IGeneric>(endpoint),
+      queryFn: () => fetchData<IGeneric>(endpoint),
       ssr: true,
       staleTime: Infinity,
     }))
   );
+
+  const {
+    data: sets,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(['sets', filter], () => fetchData<ISets>('/api/set', filter), {
+    refetchOnWindowFocus: false,
+  });
+
   const columns: ColumnDef<ISets>[] = [
     {
       header: 'Set Name',
@@ -70,7 +87,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      {sets.isError ? (
+      {isError ? (
         <>Something Went Wrong</>
       ) : (
         <>
@@ -78,15 +95,13 @@ export default function Home() {
             Sets
           </Typography>
           <Table
-            data={sets.data as ISets[]}
+            data={sets?.length ? sets : []}
             columns={columns}
-            filterable={[]}
-            searchable={[]}
-            loading={sets.isLoading && categories.isLoading && brands.isLoading}
-            brands={brands.data?.length ? (brands.data as IGeneric[]) : []}
-            categories={
-              categories.data?.length ? (categories.data as IGeneric[]) : []
-            }
+            loading={isLoading && categories.isLoading && brands.isLoading}
+            brands={brands.data?.length ? brands.data : []}
+            categories={categories.data?.length ? categories.data : []}
+            filter={filter}
+            changeFilter={setFilter}
           />
         </>
       )}
