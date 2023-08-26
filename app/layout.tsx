@@ -1,4 +1,5 @@
-import ThemeRegistry from '@/theme/ThemeRegistry';
+import ReactQueryProvider from '@/libs/ReactQueryProvider';
+import ThemeRegistry from '@/libs/theme/ThemeRegistry';
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
 
@@ -13,10 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <ThemeRegistry>
-        <body>{children}</body>
-      </ThemeRegistry>
-    </html>
+    <ReactQueryProvider>
+      <html lang="en">
+        <ThemeRegistry>
+          <body>{children}</body>
+        </ThemeRegistry>
+      </html>
+    </ReactQueryProvider>
   );
 }

@@ -13,6 +13,24 @@ const roboto = Roboto({
 });
 
 const themeOptions: ThemeOptions = {
+  components: {
+    MuiTypography: {
+      defaultProps: {
+        variantMapping: {
+          h1: 'h1',
+          h2: 'h2',
+          h3: 'h3',
+          h4: 'h4',
+          h5: 'h5',
+          h6: 'h6',
+          subtitle1: 'p',
+          subtitle2: 'p',
+          body1: 'span',
+          body2: 'span',
+        },
+      },
+    },
+  },
   typography: {
     fontSize: 12,
     fontFamily: roboto.style.fontFamily,
